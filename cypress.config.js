@@ -10,12 +10,12 @@ module.exports = defineConfig({
     "screenshotsFolder": "cypress/temp/screenshots",
     "videosFolder": "cypress/temp/videos",
     "reporter": "junit",
-    "baseUrl": "https://maf-place-qa-fe.azurewebsites.net",
+    "baseUrl": "http://stackadapt-interview.us-east-1.elasticbeanstalk.com/signup",
     "reporterOptions": {
       "mochaFile": "cypress/temp/reports/report-[hash].xml",
       "toConsole": true
     },
     "watchForFileChanges": false,
-     "testIsolation": false,
+    "testIsolation": false,
   },
 });
