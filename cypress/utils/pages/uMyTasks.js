@@ -24,8 +24,9 @@ const addNewTask = (text) => {
     uSideMenu.addTask();
     cy.get(selectors.taskField).type(text);
     cy.get(selectors.saveTaskBtn).click()
-
 }
+
+
 
 
 //export
@@ -33,5 +34,5 @@ export default {
     ...selectors,
     expected,
     savedTaskNumber,
-    addNewTask
+    addNewTask,
 }

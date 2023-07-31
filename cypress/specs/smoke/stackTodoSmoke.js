@@ -12,30 +12,40 @@ describe('Smoke', () => {
         uMain.openPage();
     });
 
-    it.skip('Sign up, Logout, Login, Incorrect Sign up, Icorrect Login', () => {
-        // Praparation
+    it('Sign up, Logout, Login, Incorrect Sign up, Icorrect Login', () => {
+        /* Since this assignment can be seen as an exam, and we need to cover top5 MVP cases, + me trying to cover 
+        very important functionality, I decided to submit the code in this way for greater 
+        clarity of code reading, where I grouped everything by types of tasks. However, in a real project, 
+        it is better to divide the tests into smaller `it` blocks for better organization and maintainability.
+        */
+
+        // ---Sign up
         cy.get(uSideMenu.signUpMenu).click();
         cy.get(uSignup.signupNameField).type(uMain.credentials.userName1);
-        cy.get(uSignup.signupEmailField).type(uMain.credentials.email1);//we need this user for next tests. We create him for the case if DB was cleaned.
+        cy.get(uSignup.signupEmailField).type(uMain.credentials.email1);//it is possible that this user is already exists in the DB, but we still need him for the future tests
         cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
         cy.get(uSignup.agreeCheckbox).check();
-        cy.get(uSignup.signUpBtn).click(); // it possible that user already exists
-        // Sign up
-        cy.get(uSignup.signupEmailField).clear();
-        cy.get(uSignup.signupEmailField).type(uMain.randomEmail1); //here we paste random email to be able to run this tests multiple times
-        cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
         cy.get(uSignup.signUpBtn).click();
-        cy.url().should('eq', uMyTasks.expected.urlMyTasks);// check if we have redirected successfully to My_tasks page
 
-        // Log out
+        cy.url().then((currentUrl) => { // in case if user1 is already exists, we create randome one
+            if (currentUrl === uSignup.expected.signUpUrl) { 
+                cy.get(uSignup.signupEmailField).clear();
+                cy.get(uSignup.signupEmailField).type(uMain.randomEmail1);
+                cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
+                cy.get(uSignup.signUpBtn).click();
+                cy.url().should('eq', uMyTasks.expected.urlMyTasks);
+            }
+        });
+
+        // ---Log out
         uSideMenu.logOut(); // here we use logOut function from uSideMenu.js
         cy.url().should('eq', uMain.expected.url); //check if we have redirected successfully to Main page
 
-        //Login
+        //---Login
         uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass1); // here we use logIn function from uSideMenu.js
         cy.url().should('eq', uMyTasks.expected.urlMyTasks);// check if we have redirected successfully to My_tasks page
 
-        // Incorrect Sign up
+        // ---Incorrect Sign up
         cy.get(uSideMenu.usersMenu).click();
         cy.get(uSideMenu.userMenuLogout).click();
         cy.get(uSideMenu.signUpMenu).click();
@@ -50,55 +60,64 @@ describe('Smoke', () => {
         cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtName); //error Msg
         cy.url().should('eq', uSignup.expected.signUpUrl);// check if we stay on Sign up page 
         //Email field is empty
-        cy.get(uSignup.signupNameField).type(uMain.credentials.userName1);
+        cy.get(uSignup.signupNameField).clear().type(uMain.credentials.userName1);
         cy.get(uSignup.signupEmailField).clear();
         cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
         cy.get(uSignup.signUpBtn).click();
-        cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtEmail); //error Msg
+        cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtEmail); //check the error Msg
         cy.url().should('eq', uSignup.expected.signUpUrl);// check if we stay on Sign up page 
         //Email is already exist
-        cy.get(uSignup.signupNameField).type(uMain.credentials.userName1);
+        cy.get(uSignup.signupNameField).clear().type(uMain.credentials.userName1);
         cy.get(uSignup.signupEmailField).type(uMain.credentials.email1);
         cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
         cy.get(uSignup.signUpBtn).click();
-        cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtEmail); //error Msg
+        cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtEmail); //check the error Msg
         cy.url().should('eq', uSignup.expected.signUpUrl);// check if we stay on Sign up page 
         //Pass field is empty
         cy.get(uSignup.signupEmailField).clear();
         cy.get(uSignup.signupEmailField).type(uMain.randomEmail2);
         cy.get(uSignup.signUpBtn).click();
-        cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtPass); //error Msg
+        cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtPass); //check the error Msg
         cy.url().should('eq', uSignup.expected.signUpUrl);// check if we stay on Sign up page
-        //The only Check box Agree is unchecked
-        cy.get(uSignup.signupNameField).type(uMain.credentials.userName1);
+        //The only Check box Agree is unchecked, rest fields are filled correct
+        cy.get(uSignup.signupNameField).clear().type(uMain.credentials.userName1);
         cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
         cy.get(uSignup.agreeCheckbox).uncheck();
         cy.get(uSignup.signUpBtn).click();
-        cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtCheckbox); //error Msg
+        cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtCheckbox); //check the error Msg
         cy.url().should('eq', uSignup.expected.signUpUrl);// check if we stay on Sign up page 
 
-        //Icorrect Login
+        //---Icorrect Login
         cy.get(uSideMenu.loginMenu).click();
         //All Fields are empty
         cy.get(uLogin.signinBtn).click();
-        cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on Login page
+        cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on the Login page
         //Email Field is empty
         cy.get(uLogin.loginPassField).type(uMain.credentials.pass1);
         cy.get(uLogin.signinBtn).click();
-        cy.get(uLogin.errorMsg).should('have.text', uLogin.expected.errorTxtEmail); //error Msg
-        cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on Login page
+        cy.get(uLogin.errorMsg).should('have.text', uLogin.expected.errorTxtEmail); //check the error Msg
+        cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on the Login page
         //Pass Field is empty
-        cy.get(uLogin.loginEmailField).type(uMain.credentials.email1);
+        cy.get(uLogin.loginEmailField).clear().type(uMain.credentials.email1);
         cy.get(uLogin.signinBtn).click();
         cy.get(uLogin.errorMsg).should('have.text', uLogin.expected.errorTxtPass); //error Msg
-        cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on Login page
+        cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on the Login page
+        //wrong email
+        cy.get(uLogin.loginEmailField).clear().type(uMain.credentials.wrongEmail);
+        cy.get(uLogin.loginPassField).type(uMain.credentials.pass1);
+        cy.get(uLogin.signinBtn).click();
+        cy.get(uLogin.wrongLoginMsg).should('contain', uLogin.expected.wrongLoginTxt); //error Msg
+        cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on the Login page
+        //wrong pass
+        cy.get(uLogin.loginEmailField).clear().type(uMain.credentials.email1);
+        cy.get(uLogin.loginPassField).type(uMain.randomPass);
+        cy.get(uLogin.signinBtn).click();
+        // cy.get(uLogin.wrongLoginMsg).should('have.text', uLogin.expected.wrongPassTxt); //BUG: Error msg should be about wrong Pass, not wrong Login 
+        cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on the Login page
     });
 
-    it.skip('Creating new task, viewing, editing, and deleting it', () => {
-        //preparation: login ###############дві наступні строки видалити
-        // cy.get(uSideMenu.loginMenu).click();
-        // cy.get(uLogin.loginEmailField).type(uMain.credentials.email1);
-
+    it('Creating new task, viewing, editing, and deleting it', () => {
+        //preparation: login
         uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass1);
 
         //creating new task from central link 'add a task'
@@ -132,7 +151,7 @@ describe('Smoke', () => {
         cy.get(uMyTasks.deleteTaskBtn).should('not.exist');
     });
 
-    it.skip('Edit user profile, Log out, Login with new credentials', () => {
+    it('Edit user profile, Log out, Login with new credentials', () => {
 
         //Change Name and check if it's new after Logout/Login:
         uSideMenu.openUserProfile();
@@ -154,40 +173,46 @@ describe('Smoke', () => {
             uSideMenu.openUserProfile();
             cy.get(uSetProfile.emailField).invoke('val').should('eq', newEmail);
         });
-        //change back to previous Name and email for succesfull tests when next time run:
+        //change back to previous Name and email for succesfull future tests:
         cy.get(uSetProfile.nameField).clear().type(uMain.credentials.userName1);
         cy.get(uSetProfile.emailField).clear().type(uMain.credentials.email1);
         cy.get(uSetProfile.updateBtn).click();
 
 
         /*
-        This test case is commented out due to a BUG in the application. 
-        It is not possible to change the password and then change it back to the original one.
-        This part of the code will be uncommented once the bug is fixed.
+        This part of code is commented out due to two BUGs in the application. 
+        - It is not possible to change the password used in our tests and then change it back to the original one.
+        - Application allows to Login user with two different passwords
+        This part of the code will be uncommented once the bugs are fixed.
 
-
-        //change pass and check if it's new after Logout/Login:
-
-        >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        //change the pass and check if it's new after Logout/Login:
         uSideMenu.openUserPass(); // entering to "Change Pass" page
         cy.get(uSetPass.currentPassField).type(uMain.credentials.pass1);
         cy.get(uSetPass.newPassField).type(uMain.credentials.pass2);
         cy.get(uSetPass.passAgainField).type(uMain.credentials.pass2);
-        cy.get(uSetPass.submitBtn).click()
+        cy.get(uSetPass.submitBtn).click() // >>>>>>>>>>>>>> BUG: unexpected error MSG "Please Enter a valid Current password"
         uSideMenu.logOut();
         uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass2);
         cy.url().should('eq', uMyTasks.expected.urlMyTasks);// check if we entered to My task page
-        //change back to previous email for succesfull tests when next time run:
-        uSideMenu.openUserPass();
+        uSideMenu.openUserPass();//change back to previous email for succesfull tests when next time run:
         cy.get(uSetPass.currentPassField).type(uMain.credentials.pass2);
         cy.get(uSetPass.newPassField).type(uMain.credentials.pass1);
         cy.get(uSetPass.passAgainField).type(uMain.credentials.pass1);
         cy.get(uSetPass.submitBtn).click();
-        >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+        // chack that only one password can be accepted by a wabsite
+        uSideMenu.logOut();
+        uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass1);
+        cy.url().should('eq', uMyTasks.expected.urlMyTasks);// check if we entered to My task page
+        uSideMenu.logOut();
+        uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass2);
+        cy.url().should('not.eq', uMyTasks.expected.urlMyTasks);// >>>>>>>>> BUG: The website was not supposed to proceed to this page, but it did.
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         */
     });
 
-    it.skip('Testing that all previous user tasks are saved after Logout/Login', () => {
+    it('Testing that all previous user tasks are saved after Logout/Login', () => {
         // adding 3 tasks from side menu:
         uSideMenu.addTask();
         uMyTasks.addNewTask(uMain.expected.taskText3);
@@ -201,52 +226,46 @@ describe('Smoke', () => {
         uMyTasks.savedTaskNumber(1).should('contain', uMain.expected.taskText3)
         uMyTasks.savedTaskNumber(2).should('contain', uMain.expected.taskText4)
         uMyTasks.savedTaskNumber(3).should('contain', uMain.expected.taskText5)
+        uSideMenu.logOut();
+
     });
 
 
-
-
     it('Testing the "remember me" option on the Login page.', () => {
-
-
-// ################# розкоментувати 3 настпні строки коли видаляю скіпи
-        // cy.get(uSideMenu.usersMenu).click();
-        // cy.get(uSideMenu.userMenuLogout).click()
-        // uSideMenu.logOut();
 
         /*
         Depending on how this function is expected to work according to business requirements, 
         testing can be approached in different ways based on the expected behavior of this option. 
         Since I don't have access to business requirements, and this function does not work correctly 
         according to user experience, I can only guess which testing method might be suitable.
-        Provided solution can be upgrated or changed when bug is fixed
+        !!!Provided solution is not final and can be upgrated or changed when bug is fixed.
+        The Other approach is to play with tocken (this App stores tocken in cookies only when you do Login with rememberMe Checkbox)
         */
 
-    // Login without rememberMeCheckbox
+        // Login without rememberMeCheckbox
         cy.get(uSideMenu.loginMenu).click();
         cy.get(uLogin.loginEmailField).type(uMain.credentials.email1);
         cy.get(uLogin.loginPassField).type(uMain.credentials.pass1);
         cy.get(uLogin.rememberMeCheckbox).uncheck();
-        cy.get(uLogin.signinBtn).click();// in the next two <it> we will visit other site and go back 
+        cy.get(uLogin.signinBtn).click();// in the next two <it> we will visit other site and go back to check if the App remember user
     });
 
-    it('Go to other site', () => {
-        cy.visit("https://www.google.com")
-        cy.wait(3000)
-    });
-    it('Go back', () => {
-        cy.visit(uMyTasks.expected.urlMyTasks)
-        //Assertion, commented out due to a bug
-        // cy.url().should('not.eq', uMyTasks.expected.urlMyTasks); // check if we were redirected to Main page 
-    });
+        it('Go to other site', () => {
+            cy.visit("https://www.google.com")
+        });
+        it('Go back', () => {
+            cy.visit(uMyTasks.expected.urlMyTasks)
+            //Assertion, commented out due to a  >>>>>>>>> BUG
+            // cy.url().should('not.eq', uMyTasks.expected.urlMyTasks); // check if we were redirected to Main page 
+        });
 
+    it('>>>> Extra task: Translate the manual test case into an automation test case. Delete and verify tasks', () => {
+        uMyTasks.savedTaskNumber(3).find(uMyTasks.deleteTaskBtn).click();
+        uMyTasks.savedTaskNumber(2).find(uMyTasks.deleteTaskBtn).click();
+        cy.get(uMyTasks.deleteTaskBtn).should('have.length', 1);//verify that we have only 1 button to delete task == we have only 1 task on the page
+        //deleting last task and LogOut to be able to run succesfully these tests from the beginning
+        uMyTasks.savedTaskNumber(1).find(uMyTasks.deleteTaskBtn).click();
+        uSideMenu.logOut();
+    });
 
 });
-
-
-
-// додати негативні тест кейси третього завднання
-// додати іф елз для першого
-// перевірити чи дійсно баг зі зміною паролю
-//останн я дія в тестах має бути логаут
-
