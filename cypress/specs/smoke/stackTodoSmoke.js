@@ -258,7 +258,16 @@ describe('Smoke', () => {
         cy.visit(uMyTasks.expected.urlMyTasks)
         //Assertion, commented out due to a  >>>>>>>>> BUG
         // cy.url().should('not.eq', uMyTasks.expected.urlMyTasks); // check if we were redirected to Main page 
+
+
+        //WE can also take an alternative approach. 
+        // - Perform user authentication with the "remember me" checkbox checked
+        // - verify that the token has been created: cy.getCookie('remember_token').should('exist');
+        // - navigate to a different site in another <it> block, 
+        // -  in another <it> block, return and verify that the token still exists.
+        // This ensures the functionality of user rememberance is tested. But again, we need to choose best approach after clirifying this functionality in requirements
     });
+
 
 
     it('>>>>>>> Extra task: Translate the manual test case into an automation test case. Delete and verify tasks', () => {
@@ -287,8 +296,8 @@ describe('Smoke', () => {
         uMyTasks.savedTaskNumber(1).find(uMyTasks.deleteTaskBtn).click();
 
         cy.request('http://stackadapt-interview.us-east-1.elasticbeanstalk.com/').its('body').then((body) => {// this will сhange back our response type from 'application/json' to 'text/html'.
-        cy.document().invoke('write', body);
-    });
+            cy.document().invoke('write', body);
+        });
         uSideMenu.logOut();
 
     });
