@@ -284,11 +284,9 @@ describe('Smoke', () => {
         cy.intercept('GET', 'http://stackadapt-interview.us-east-1.elasticbeanstalk.com', (req) => {
             req.reply(testData);
         });
-        cy.get(uMyTasks.firstSavedTask).should('contain', uMain.expected.taskText3); //check if the task saved
-        cy.get(uMyTasks.secondSavedTask).should('contain', uMain.expected.taskText4); //check if the task saved
-        cy.get(uMyTasks.thirdSavedTask).should('contain', uMain.expected.taskText5); //check if the task saved
-
-
+        cy.get(uMyTasks.firstSavedTask).should('contain', testData[0].text); //compare preloaded texts
+        cy.get(uMyTasks.secondSavedTask).should('contain', testData[1].text);
+        cy.get(uMyTasks.thirdSavedTask).should('contain', testData[2].text);
         uMyTasks.savedTaskNumber(3).find(uMyTasks.deleteTaskBtn).click();
         uMyTasks.savedTaskNumber(2).find(uMyTasks.deleteTaskBtn).click();
         cy.get(uMyTasks.deleteTaskBtn).should('have.length', 1); //verify that we have only 1 button to delete task == we have only 1 task on the page
