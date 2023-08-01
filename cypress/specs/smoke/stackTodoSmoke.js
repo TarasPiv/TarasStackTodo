@@ -21,9 +21,9 @@ describe('Smoke', () => {
 
         // ---Sign up
         cy.get(uSideMenu.signUpMenu).click();
-        cy.get(uSignup.signupNameField).type(uMain.credentials.userName1);
-        cy.get(uSignup.signupEmailField).type(uMain.credentials.email1);//it is possible that this user is already exists in the DB, but we still need him for the future tests
-        cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
+        cy.get(uSignup.signupNameField).type(Cypress.env().TODOUSERNAME1); // usernames, emails and passwords, are hiden for security purposes and provided for GitHub pipeline
+        cy.get(uSignup.signupEmailField).type(Cypress.env().TODOUSEREMAIL1);//it is possible that this user is already exists in the DB, but we still need him for the future tests
+        cy.get(uSignup.signupPassField).type(Cypress.env().TODOPASS1);
         cy.get(uSignup.agreeCheckbox).check();
         cy.get(uSignup.signUpBtn).click();
         cy.wait(1000)
@@ -32,7 +32,7 @@ describe('Smoke', () => {
             if (currentUrl === uSignup.expected.signUpUrl) {
                 cy.get(uSignup.signupEmailField).clear();
                 cy.get(uSignup.signupEmailField).type(uMain.randomEmail1);
-                cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
+                cy.get(uSignup.signupPassField).type(Cypress.env().TODOPASS1);
                 cy.get(uSignup.signUpBtn).click();
                 cy.url().should('eq', uMyTasks.expected.urlMyTasks);
             }
@@ -43,7 +43,7 @@ describe('Smoke', () => {
         cy.url().should('eq', uMain.expected.url); //check if we have redirected successfully to Main page
 
         //---Login
-        uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass1); // here we use logIn function from uSideMenu.js
+        uSideMenu.logIn(Cypress.env().TODOUSEREMAIL1, Cypress.env().TODOPASS1); // here we use logIn function from uSideMenu.js
         cy.url().should('eq', uMyTasks.expected.urlMyTasks);// check if we have redirected successfully to My_tasks page
 
         // ---Incorrect Sign up
@@ -55,22 +55,22 @@ describe('Smoke', () => {
         cy.url().should('eq', uSignup.expected.signUpUrl);// check if we stay on Sign up page 
         //Name field is empty
         cy.get(uSignup.signupEmailField).type(uMain.randomEmail2);
-        cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
+        cy.get(uSignup.signupPassField).type(Cypress.env().TODOPASS1);
         cy.get(uSignup.agreeCheckbox).check();
         cy.get(uSignup.signUpBtn).click();
         cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtName); //error Msg
         cy.url().should('eq', uSignup.expected.signUpUrl);// check if we stay on Sign up page 
         //Email field is empty
-        cy.get(uSignup.signupNameField).clear().type(uMain.credentials.userName1);
+        cy.get(uSignup.signupNameField).clear().type(Cypress.env().TODOUSERNAME1);
         cy.get(uSignup.signupEmailField).clear();
-        cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
+        cy.get(uSignup.signupPassField).type(Cypress.env().TODOPASS1);
         cy.get(uSignup.signUpBtn).click();
         cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtEmail); //check the error Msg
         cy.url().should('eq', uSignup.expected.signUpUrl);// check if we stay on Sign up page 
         //Email is already exist
-        cy.get(uSignup.signupNameField).clear().type(uMain.credentials.userName1);
-        cy.get(uSignup.signupEmailField).type(uMain.credentials.email1);
-        cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
+        cy.get(uSignup.signupNameField).clear().type(Cypress.env().TODOUSERNAME1);
+        cy.get(uSignup.signupEmailField).type(Cypress.env().TODOUSEREMAIL1);
+        cy.get(uSignup.signupPassField).type(Cypress.env().TODOPASS1);
         cy.get(uSignup.signUpBtn).click();
         cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtEmail); //check the error Msg
         cy.url().should('eq', uSignup.expected.signUpUrl);// check if we stay on Sign up page 
@@ -81,8 +81,8 @@ describe('Smoke', () => {
         cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtPass); //check the error Msg
         cy.url().should('eq', uSignup.expected.signUpUrl);// check if we stay on Sign up page
         //The only Check box Agree is unchecked, rest fields are filled correct
-        cy.get(uSignup.signupNameField).clear().type(uMain.credentials.userName1);
-        cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
+        cy.get(uSignup.signupNameField).clear().type(Cypress.env().TODOUSERNAME1);
+        cy.get(uSignup.signupPassField).type(Cypress.env().TODOPASS1);
         cy.get(uSignup.agreeCheckbox).uncheck();
         cy.get(uSignup.signUpBtn).click();
         cy.get(uSignup.errorMsg).should('have.text', uSignup.expected.errorTxtCheckbox); //check the error Msg
@@ -94,23 +94,23 @@ describe('Smoke', () => {
         cy.get(uLogin.signinBtn).click();
         cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on the Login page
         //Email Field is empty
-        cy.get(uLogin.loginPassField).type(uMain.credentials.pass1);
+        cy.get(uLogin.loginPassField).type(Cypress.env().TODOPASS1);
         cy.get(uLogin.signinBtn).click();
         cy.get(uLogin.errorMsg).should('have.text', uLogin.expected.errorTxtEmail); //check the error Msg
         cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on the Login page
         //Pass Field is empty
-        cy.get(uLogin.loginEmailField).clear().type(uMain.credentials.email1);
+        cy.get(uLogin.loginEmailField).clear().type(Cypress.env().TODOUSEREMAIL1);
         cy.get(uLogin.signinBtn).click();
         cy.get(uLogin.errorMsg).should('have.text', uLogin.expected.errorTxtPass); //error Msg
         cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on the Login page
         //wrong email
         cy.get(uLogin.loginEmailField).clear().type(uMain.credentials.wrongEmail);
-        cy.get(uLogin.loginPassField).type(uMain.credentials.pass1);
+        cy.get(uLogin.loginPassField).type(Cypress.env().TODOPASS1);
         cy.get(uLogin.signinBtn).click();
         cy.get(uLogin.wrongLoginMsg).should('contain', uLogin.expected.wrongLoginTxt); //error Msg
         cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on the Login page
         //wrong pass
-        cy.get(uLogin.loginEmailField).clear().type(uMain.credentials.email1);
+        cy.get(uLogin.loginEmailField).clear().type(Cypress.env().TODOUSEREMAIL1);
         cy.get(uLogin.loginPassField).type(uMain.randomPass);
         cy.get(uLogin.signinBtn).click();
         // cy.get(uLogin.wrongLoginMsg).should('have.text', uLogin.expected.wrongPassTxt); // >>>>>>>>> BUG: Error msg should be about wrong Pass, not wrong Login 
@@ -119,7 +119,7 @@ describe('Smoke', () => {
 
     it('Creating new task, viewing, editing, and deleting it', () => {
         //preparation: login
-        uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass1);
+        uSideMenu.logIn(Cypress.env().TODOUSEREMAIL1, Cypress.env().TODOPASS1);
 
         //creating new task from central link 'add a task'
         cy.get(uMyTasks.addATask).click();
@@ -156,12 +156,12 @@ describe('Smoke', () => {
 
         //Change Name and check if it's new after Logout/Login:
         uSideMenu.openUserProfile();
-        cy.get(uSetProfile.nameField).clear().type(uMain.credentials.userName2);
+        cy.get(uSetProfile.nameField).clear().type(Cypress.env().TODOUSERNAME2);
         cy.get(uSetProfile.updateBtn).click();
         uSideMenu.logOut();
-        uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass1);
+        uSideMenu.logIn(Cypress.env().TODOUSEREMAIL1, Cypress.env().TODOPASS1);
         uSideMenu.openUserProfile();
-        cy.get(uSetProfile.nameField).invoke('val').should('eq', uMain.credentials.userName2);
+        cy.get(uSetProfile.nameField).invoke('val').should('eq', Cypress.env().TODOUSERNAME2);
 
         //change the current email to a unique one:
         cy.get(uSetProfile.emailField).clear().type(uMain.randomEmail2); //write unique email
@@ -170,13 +170,13 @@ describe('Smoke', () => {
             newEmail = currentEmail; // memorize new EMAIL
             cy.get(uSetProfile.updateBtn).click();
             uSideMenu.logOut();
-            uSideMenu.logIn(newEmail, uMain.credentials.pass1);
+            uSideMenu.logIn(newEmail, Cypress.env().TODOPASS1);
             uSideMenu.openUserProfile();
             cy.get(uSetProfile.emailField).invoke('val').should('eq', newEmail);
         });
         //change back to previous Name and email for succesfull future tests:
-        cy.get(uSetProfile.nameField).clear().type(uMain.credentials.userName1);
-        cy.get(uSetProfile.emailField).clear().type(uMain.credentials.email1);
+        cy.get(uSetProfile.nameField).clear().type(Cypress.env().TODOUSERNAME1);
+        cy.get(uSetProfile.emailField).clear().type(Cypress.env().TODOUSEREMAIL1);
         cy.get(uSetProfile.updateBtn).click();
 
 
@@ -189,25 +189,25 @@ describe('Smoke', () => {
         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         //change the pass and check if it's new after Logout/Login:
         uSideMenu.openUserPass(); // entering to "Change Pass" page
-        cy.get(uSetPass.currentPassField).type(uMain.credentials.pass1);
-        cy.get(uSetPass.newPassField).type(uMain.credentials.pass2);
-        cy.get(uSetPass.passAgainField).type(uMain.credentials.pass2);
+        cy.get(uSetPass.currentPassField).type(Cypress.env().TODOPASS1);
+        cy.get(uSetPass.newPassField).type(Cypress.env().TODOPASS2);
+        cy.get(uSetPass.passAgainField).type(Cypress.env().TODOPASS2);
         cy.get(uSetPass.submitBtn).click() // >>>>>>>>>>>>>> BUG: unexpected error MSG "Please Enter a valid Current password"
         uSideMenu.logOut();
-        uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass2);
+        uSideMenu.logIn(Cypress.env().TODOUSEREMAIL1, Cypress.env().TODOPASS2);
         cy.url().should('eq', uMyTasks.expected.urlMyTasks);// check if we entered to My task page
         uSideMenu.openUserPass();//change back to previous email for succesfull tests when next time run:
-        cy.get(uSetPass.currentPassField).type(uMain.credentials.pass2);
-        cy.get(uSetPass.newPassField).type(uMain.credentials.pass1);
-        cy.get(uSetPass.passAgainField).type(uMain.credentials.pass1);
+        cy.get(uSetPass.currentPassField).type(Cypress.env().TODOPASS2);
+        cy.get(uSetPass.newPassField).type(Cypress.env().TODOPASS1);
+        cy.get(uSetPass.passAgainField).type(Cypress.env().TODOPASS1);
         cy.get(uSetPass.submitBtn).click();
 
         // chack that only one password can be accepted by a wabsite
         uSideMenu.logOut();
-        uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass1);
+        uSideMenu.logIn(Cypress.env().TODOUSEREMAIL1, Cypress.env().TODOPASS1);
         cy.url().should('eq', uMyTasks.expected.urlMyTasks);// check if we entered to My task page
         uSideMenu.logOut();
-        uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass2);
+        uSideMenu.logIn(Cypress.env().TODOUSEREMAIL1, Cypress.env().TODOPASS2);
         cy.url().should('not.eq', uMyTasks.expected.urlMyTasks);// >>>>>>>>> BUG: The website was not supposed to proceed to this page, but it did.
         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         */
@@ -223,7 +223,7 @@ describe('Smoke', () => {
         uMyTasks.addNewTask(uMain.expected.taskText5);
         //checking if saved tasks are present after Logout/Login by comparing texts
         uSideMenu.logOut();
-        uSideMenu.logIn(uMain.credentials.email1, uMain.credentials.pass1);
+        uSideMenu.logIn(Cypress.env().TODOUSEREMAIL1, Cypress.env().TODOPASS1);
         uMyTasks.savedTaskNumber(1).should('contain', uMain.expected.taskText3)
         uMyTasks.savedTaskNumber(2).should('contain', uMain.expected.taskText4)
         uMyTasks.savedTaskNumber(3).should('contain', uMain.expected.taskText5)
@@ -245,8 +245,8 @@ describe('Smoke', () => {
 
         // Login without rememberMeCheckbox
         cy.get(uSideMenu.loginMenu).click();
-        cy.get(uLogin.loginEmailField).type(uMain.credentials.email1);
-        cy.get(uLogin.loginPassField).type(uMain.credentials.pass1);
+        cy.get(uLogin.loginEmailField).type(Cypress.env().TODOUSEREMAIL1);
+        cy.get(uLogin.loginPassField).type(Cypress.env().TODOPASS1);
         cy.get(uLogin.rememberMeCheckbox).uncheck();
         cy.get(uLogin.signinBtn).click();// in the next two <it> we will visit other site and go back to check if the App remember user
     });
@@ -289,16 +289,8 @@ describe('Smoke', () => {
         cy.request('http://stackadapt-interview.us-east-1.elasticbeanstalk.com/').its('body').then((body) => {// this will сhange back our response type from 'application/json' to 'text/html'.
         cy.document().invoke('write', body);
     });
-        // uSideMenu.logOut();
-        cy.get(uSideMenu.usersMenu).click();
-        cy.get(uSideMenu.userMenuLogout).click();
+        uSideMenu.logOut();
 
-
- 
     });
-
-
-
-
 
 });

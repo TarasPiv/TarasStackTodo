@@ -1,8 +1,7 @@
-//Selectors
-
 import uLogin from "./uLogin";
-import uMain from "./uMain";
 
+
+//Selectors
 const selectors = {
     //menu when user is not authorized
     signUpMenu: '.nav-link:eq(0)',
