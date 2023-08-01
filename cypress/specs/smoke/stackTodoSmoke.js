@@ -26,9 +26,10 @@ describe('Smoke', () => {
         cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
         cy.get(uSignup.agreeCheckbox).check();
         cy.get(uSignup.signUpBtn).click();
+        cy.wait(1000)
 
-        cy.url().then((currentUrl) => { // in case if user1 is already exists, we create randome one
-            if (currentUrl === uSignup.expected.signUpUrl) { 
+        cy.url().then((currentUrl) => { // in case if user1 already exists, we create randome one for testing Sign up functionality purposes
+            if (currentUrl === uSignup.expected.signUpUrl) {
                 cy.get(uSignup.signupEmailField).clear();
                 cy.get(uSignup.signupEmailField).type(uMain.randomEmail1);
                 cy.get(uSignup.signupPassField).type(uMain.credentials.pass1);
@@ -112,7 +113,7 @@ describe('Smoke', () => {
         cy.get(uLogin.loginEmailField).clear().type(uMain.credentials.email1);
         cy.get(uLogin.loginPassField).type(uMain.randomPass);
         cy.get(uLogin.signinBtn).click();
-        // cy.get(uLogin.wrongLoginMsg).should('have.text', uLogin.expected.wrongPassTxt); //BUG: Error msg should be about wrong Pass, not wrong Login 
+        // cy.get(uLogin.wrongLoginMsg).should('have.text', uLogin.expected.wrongPassTxt); // >>>>>>>>> BUG: Error msg should be about wrong Pass, not wrong Login 
         cy.url().should('eq', uLogin.expected.loginUpUrl);// check if we stay on the Login page
     });
 
@@ -124,7 +125,7 @@ describe('Smoke', () => {
         cy.get(uMyTasks.addATask).click();
         cy.get(uMyTasks.taskField).type(uMain.expected.taskText1);
         cy.get(uMyTasks.saveTaskBtn).click();
-        cy.get(uMyTasks.firstSavedTask).should('contain', uMain.expected.taskText1); //sheck if the task saved
+        cy.get(uMyTasks.firstSavedTask).should('contain', uMain.expected.taskText1); //check if the task saved
         cy.url().should('eq', uMyTasks.expected.urlMyTasks);// check if we stay on Login page
 
         //view saved task
@@ -250,22 +251,54 @@ describe('Smoke', () => {
         cy.get(uLogin.signinBtn).click();// in the next two <it> we will visit other site and go back to check if the App remember user
     });
 
-        it('Go to other site', () => {
-            cy.visit("https://www.google.com")
-        });
-        it('Go back', () => {
-            cy.visit(uMyTasks.expected.urlMyTasks)
-            //Assertion, commented out due to a  >>>>>>>>> BUG
-            // cy.url().should('not.eq', uMyTasks.expected.urlMyTasks); // check if we were redirected to Main page 
-        });
+    it('Go to other site', () => {
+        cy.visit("https://www.google.com")
+    });
+    it('Go back', () => {
+        cy.visit(uMyTasks.expected.urlMyTasks)
+        //Assertion, commented out due to a  >>>>>>>>> BUG
+        // cy.url().should('not.eq', uMyTasks.expected.urlMyTasks); // check if we were redirected to Main page 
+    });
 
-    it('>>>> Extra task: Translate the manual test case into an automation test case. Delete and verify tasks', () => {
+
+    it('>>>>>>> Extra task: Translate the manual test case into an automation test case. Delete and verify tasks', () => {
+
+        // BONUS POINT !!! Architect a solution to “pre-load” the db with relevant data to speed up the test.
+
+        // We are using cy.intercept() to intercept the GET request to the api.url endpoint.
+        // When this GET request occurs, we will reply with the 'testData' variable, providing the test data for the user notes instead of making a real request to the server.
+        const testData = [
+            { text: uMain.expected.taskText3 },
+            { text: uMain.expected.taskText4 },
+            { text: uMain.expected.taskText5 },
+        ];
+        cy.intercept('GET', 'http://stackadapt-interview.us-east-1.elasticbeanstalk.com', (req) => {
+            req.reply(testData);
+        });
+        cy.get(uMyTasks.firstSavedTask).should('contain', uMain.expected.taskText3); //check if the task saved
+        cy.get(uMyTasks.secondSavedTask).should('contain', uMain.expected.taskText4); //check if the task saved
+        cy.get(uMyTasks.thirdSavedTask).should('contain', uMain.expected.taskText5); //check if the task saved
+
+
         uMyTasks.savedTaskNumber(3).find(uMyTasks.deleteTaskBtn).click();
         uMyTasks.savedTaskNumber(2).find(uMyTasks.deleteTaskBtn).click();
-        cy.get(uMyTasks.deleteTaskBtn).should('have.length', 1);//verify that we have only 1 button to delete task == we have only 1 task on the page
-        //deleting last task and LogOut to be able to run succesfully these tests from the beginning
+        cy.get(uMyTasks.deleteTaskBtn).should('have.length', 1); //verify that we have only 1 button to delete task == we have only 1 task on the page
+        // deleting last task and LogOut to be able to run succesfully these tests from the beginning
         uMyTasks.savedTaskNumber(1).find(uMyTasks.deleteTaskBtn).click();
-        uSideMenu.logOut();
+
+        cy.request('http://stackadapt-interview.us-east-1.elasticbeanstalk.com/').its('body').then((body) => {// this will сhange back our response type from 'application/json' to 'text/html'.
+        cy.document().invoke('write', body);
     });
+        // uSideMenu.logOut();
+        cy.get(uSideMenu.usersMenu).click();
+        cy.get(uSideMenu.userMenuLogout).click();
+
+
+ 
+    });
+
+
+
+
 
 });

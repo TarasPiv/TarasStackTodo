@@ -6,6 +6,8 @@ const selectors = {
     taskField: '#task',
     saveTaskBtn: '#submit',
     firstSavedTask: 'tr:eq(1)',
+    secondSavedTask: 'tr:eq(2)',
+    thirdSavedTask: 'tr:eq(3)',
     viewTaskBtn: '.btn-outline-primary', //can be accepted to any saved task
     editTaskBtn: '.btn-outline-secondary',
     deleteTaskBtn: '.btn-outline-danger',
